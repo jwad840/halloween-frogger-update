@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halloween Frogger - Spooky Adventure</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a0d2e 0%, #2d1b69 50%, #0f051a 100%);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Spooky background elements */
+        .background-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-bat {
+            position: absolute;
+            font-size: 20px;
+            animation: float 8s ease-in-out infinite;
+            opacity: 0.3;
+        }
+
+        .spider {
+            position: absolute;
+            font-size: 16px;
+            animation: swing 3s ease-in-out infinite;
+            opacity: 0.4;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) translateX(0px); }
+            25% { transform: translateY(-20px) translateX(10px); }
+            50% { transform: translateY(-10px) translateX(-5px); }
+            75% { transform: translateY(-15px) translateX(8px); }
+        }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background: linear-gradient(to bottom, #0f051a 0%, #1a0d2e 20%, #2d1b69 80%, #0f051a 100%);
+            border: 3px solid #ff6b35;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+            z-index: 2;
+        }
+
+        .start-screen, .game-over-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            border: 3px solid #ff6b35;
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.7);
+            z-index: 10;
+        }
+
+        .start-screen h1, .game-over-screen h1 {
+            color: #ff6b35;
+            font-size: 3em;
+            margin: 0 0 20px 0;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8), 0 0 10px #ff6b35; }
+            to { text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8), 0 0 20px #ff6b35, 0 0 30px #ff6b35; }
+        }
+
+        .start-button, .restart-button {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.5em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .start-button:hover, .restart-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+        }
+
+        .game-info {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 30px;
+            border-radius: 15px;
+            border: 2px solid #ff6b35;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+            z-index: 5;
+        }
+
+        .game-info div {
+            color: #ff6b35;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .game-info .icon {
+            font-size: 24px;
+        }
+
+        .instructions {
+            color: #cccccc;
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+
+        .final-score {
+            color: #ff6b35;
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-elements">
+        <div class="floating-bat" style="top: 10%; left: 15%;">🦇</div>
+        <div class="floating-bat" style="top: 20%; right: 20%; animation-delay: -2s;">🦇</div>
+        <div class="floating-bat" style="top: 70%; left: 10%; animation-delay: -4s;">🦇</div>
+        <div class="floating-bat" style="top: 80%; right: 15%; animation-delay: -6s;">🦇</div>
+        <div class="spider" style="top: 5%; left: 50%;">🕷️</div>
+        <div class="spider" style="top: 15%; right: 30%; animation-delay: -1s;">🕷️</div>
+        <div class="spider" style="top: 85%; left: 70%; animation-delay: -2s;">🕷️</div>
+    </div>
+
+    <div class="game-container">
+        <div class="game-info" id="gameInfo" style="display: none;">
+            <div><span class="icon">🎯</span>Score: <span id="score">0</span></div>
+            <div><span class="icon">🎃</span>Level: <span id="level">1</span></div>
+            <div><span class="icon">❤️</span>Lives: <span id="lives">3</span></div>
+        </div>
+
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <div id="startScreen" class="start-screen">
+            <h1>🎃 Halloween Frogger 🎃</h1>
+            <p class="instructions">
+                Help the jack-o'-lantern cross the spooky roads!<br>
+                Use arrow keys to move<br>
+                Avoid the ghosts, witches, and zombies!
+            </p>
+            <button class="start-button" onclick="startGame()">🎃 Start Spooky Adventure 🎃</button>
+        </div>
+
+        <div id="gameOverScreen" class="game-over-screen" style="display: none;">
+            <h1>👻 Game Over 👻</h1>
+            <div class="final-score">Final Score: <span id="finalScore">0</span></div>
+            <button class="restart-button" onclick="restartGame()">🎃 Try Again 🎃</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Game state
+        let gameState = 'start'; // 'start', 'playing', 'gameOver'
+        let score = 0;
+        let level = 1;
+        let lives = 3;
+        let gameSpeed = 1;
+        let animationId = null;
+        
+        // Player object
+        const player = {
+            x: canvas.width / 2 - 20,
+            y: canvas.height - 60,
+            width: 40,
+            height: 40,
+            speed: 40
+        };
+        
+        // Vehicle arrays
+        let vehicles = [];
+        const vehicleTypes = ['👻', '🧙‍♀️', '🧟', '🧟‍♂️', '🧟‍♀️'];
+        
+        // Road configuration
+        const roads = [
+            { y: 500, direction: 1, speed: 1 },
+            { y: 440, direction: -1, speed: 1.5 },
+            { y: 380, direction: 1, speed: 1.2 },
+            { y: 320, direction: -1, speed: 1.8 },
+            { y: 260, direction: 1, speed: 1.4 },
+            { y: 200, direction: -1, speed: 2 },
+            { y: 140, direction: 1, speed: 1.6 },
+            { y: 80, direction: -1, speed: 2.2 }
+        ];
+        
+        // Input handling
+        const keys = {};
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+        
+        // Game functions
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameInfo').style.display = 'flex';
+            gameState = 'playing';
+            resetGame();
+            gameLoop();
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('gameInfo').style.display = 'flex';
+            gameState = 'playing';
+            resetGame();
+            // Restart the game loop
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            gameLoop();
+        }
+        
+        function resetGame() {
+            score = 0;
+            level = 1;
+            lives = 3;
+            gameSpeed = 1;
+            player.x = canvas.width / 2 - 20;
+            player.y = canvas.height - 60;
+            vehicles = [];
+            updateUI();
+        }
+        
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('level').textContent = level;
+            document.getElementById('lives').textContent = lives;
+        }
+        
+        function drawPlayer() {
+            const centerX = player.x + player.width / 2;
+            const centerY = player.y + player.height / 2;
+            
+            // Draw jack-o'-lantern body
+            ctx.fillStyle = '#ff6b35';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 18, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw pumpkin ridges
+            ctx.strokeStyle = '#cc4400';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
+                const x1 = centerX + Math.cos(angle) * 12;
+                const y1 = centerY + Math.sin(angle) * 12;
+                const x2 = centerX + Math.cos(angle) * 18;
+                const y2 = centerY + Math.sin(angle) * 18;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+            
+            // Draw stem
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(centerX - 3, centerY - 22, 6, 8);
+            
+            // Draw carved face
+            ctx.fillStyle = '#000000';
+            
+            // Eyes (triangular)
+            ctx.beginPath();
+            ctx.moveTo(centerX - 8, centerY - 5);
+            ctx.lineTo(centerX - 12, centerY + 2);
+            ctx.lineTo(centerX - 4, centerY + 2);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX + 8, centerY - 5);
+            ctx.lineTo(centerX + 4, centerY + 2);
+            ctx.lineTo(centerX + 12, centerY + 2);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Mouth (zigzag)
+            ctx.beginPath();
+            ctx.moveTo(centerX - 10, centerY + 8);
+            ctx.lineTo(centerX - 6, centerY + 12);
+            ctx.lineTo(centerX - 2, centerY + 8);
+            ctx.lineTo(centerX + 2, centerY + 12);
+            ctx.lineTo(centerX + 6, centerY + 8);
+            ctx.lineTo(centerX + 10, centerY + 12);
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.fill();
+        }
+        
+        function createVehicle(roadIndex) {
+            const road = roads[roadIndex];
+            const vehicleType = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
+            
+            // Calculate speed based on level with progressive difficulty
+            // FIXED: Increased beginning level speeds by 15-20%
+            let baseSpeed = road.speed;
+            if (level <= 3) {
+                // Tutorial levels - increased from 0.4 to 0.5 (25% faster)
+                baseSpeed *= 0.5;
+            } else if (level <= 6) {
+                // Easy to moderate progression - slightly increased
+                baseSpeed *= (0.5 + (level - 3) * 0.15);
+            } else {
+                // Traditional challenge
+                baseSpeed *= (0.95 + (level - 6) * 0.1);
+            }
+            
+            const vehicle = {
+                x: road.direction > 0 ? -60 : canvas.width + 60,
+                y: road.y,
+                width: 50,
+                height: 40,
+                speed: baseSpeed * road.direction * gameSpeed,
+                type: vehicleType,
+                roadIndex: roadIndex
+            };
+            
+            vehicles.push(vehicle);
+        }
+        
+        function updateVehicles() {
+            // Move vehicles
+            for (let i = vehicles.length - 1; i >= 0; i--) {
+                vehicles[i].x += vehicles[i].speed;
+                
+                // Remove vehicles that are off screen
+                if (vehicles[i].x < -100 || vehicles[i].x > canvas.width + 100) {
+                    vehicles.splice(i, 1);
+                }
+            }
+            
+            // Spawn new vehicles based on level
+            let spawnChance;
+            if (level <= 3) {
+                spawnChance = 0.004; // Slightly increased spawn rate for more engagement
+            } else if (level <= 6) {
+                spawnChance = 0.004 + (level - 3) * 0.002; // Gradual increase
+            } else {
+                spawnChance = 0.01 + (level - 6) * 0.001; // Higher spawn rate
+            }
+            
+            roads.forEach((road, index) => {
+                if (Math.random() < spawnChance) {
+                    // Check if there's enough space for a new vehicle
+                    const lastVehicle = vehicles.filter(v => v.roadIndex === index).pop();
+                    if (!lastVehicle || Math.abs(lastVehicle.x - (road.direction > 0 ? -60 : canvas.width + 60)) > 150) {
+                        createVehicle(index);
+                    }
+                }
+            });
+        }
+        
+        function drawVehicle(vehicle) {
+            ctx.font = '40px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Add glow effect for spooky atmosphere
+            ctx.shadowColor = vehicle.type === '👻' ? '#ffffff' : '#ff6b35';
+            ctx.shadowBlur = 10;
+            
+            ctx.fillText(
+                vehicle.type, 
+                vehicle.x + vehicle.width / 2, 
+                vehicle.y + vehicle.height / 2
+            );
+            
+            ctx.shadowBlur = 0;
+        }
+        
+        function drawRoads() {
+            // Draw road stripes
+            ctx.fillStyle = '#333333';
+            roads.forEach(road => {
+                ctx.fillRect(0, road.y - 20, canvas.width, 80);
+                
+                // Draw lane dividers
+                ctx.fillStyle = '#666666';
+                for (let x = 0; x < canvas.width; x += 60) {
+                    ctx.fillRect(x, road.y + 15, 30, 3);
+                }
+                ctx.fillStyle = '#333333';
+            });
+            
+            // Draw safe zones (grass)
+            ctx.fillStyle = '#1a4d1a';
+            ctx.fillRect(0, 0, canvas.width, 60);
+            ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
+            
+            // Add some spooky ground details
+            ctx.fillStyle = '#0d2d0d';
+            for (let i = 0; i < 10; i++) {
+                const x = (i * 80) % canvas.width;
+                ctx.fillRect(x, 10, 20, 5);
+                ctx.fillRect(x + 30, canvas.height - 70, 25, 5);
+            }
+        }
+        
+        function handleInput() {
+            if (keys['ArrowUp'] && player.y > 0) {
+                player.y -= player.speed;
+                score += 10; // Points for moving forward
+                keys['ArrowUp'] = false; // Prevent continuous movement
+            }
+            if (keys['ArrowDown'] && player.y < canvas.height - player.height) {
+                player.y += player.speed;
+                keys['ArrowDown'] = false;
+            }
+            if (keys['ArrowLeft'] && player.x > 0) {
+                player.x -= player.speed;
+                keys['ArrowLeft'] = false;
+            }
+            if (keys['ArrowRight'] && player.x < canvas.width - player.width) {
+                player.x += player.speed;
+                keys['ArrowRight'] = false;
+            }
+        }
+        
+        function checkCollisions() {
+            vehicles.forEach(vehicle => {
+                if (player.x < vehicle.x + vehicle.width - 10 &&
+                    player.x + player.width > vehicle.x + 10 &&
+                    player.y < vehicle.y + vehicle.height - 10 &&
+                    player.y + player.height > vehicle.y + 10) {
+                    
+                    // Collision detected
+                    lives--;
+                    player.x = canvas.width / 2 - 20;
+                    player.y = canvas.height - 60;
+                    
+                    if (lives <= 0) {
+                        gameOver();
+                    }
+                }
+            });
+        }
+        
+        function checkLevelProgress() {
+            if (player.y <= 60) {
+                // Reached the top - level complete!
+                level++;
+                score += level * 100; // Level completion bonus
+                player.x = canvas.width / 2 - 20;
+                player.y = canvas.height - 60;
+                
+                // Increase game speed slightly
+                gameSpeed += 0.05;
+            }
+        }
+        
+        function gameOver() {
+            gameState = 'gameOver';
+            document.getElementById('gameInfo').style.display = 'none';
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').style.display = 'block';
+            
+            // FIXED: Cancel the animation frame to prevent the game loop from continuing
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+        
+        function drawBackground() {
+            // Draw spooky sky gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0f051a');
+            gradient.addColorStop(0.3, '#1a0d2e');
+            gradient.addColorStop(0.7, '#2d1b69');
+            gradient.addColorStop(1, '#0f051a');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Add some stars
+            ctx.fillStyle = '#ffffff';
+            for (let i = 0; i < 20; i++) {
+                const x = (i * 37) % canvas.width;
+                const y = (i * 23) % 100;
+                ctx.beginPath();
+                ctx.arc(x, y, 1, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function gameLoop() {
+            // FIXED: Store animation ID and only continue if game is playing
+            if (gameState === 'playing') {
+                // Clear canvas
+                drawBackground();
+                
+                // Draw game elements
+                drawRoads();
+                
+                // Handle input
+                handleInput();
+                
+                // Update game objects
+                updateVehicles();
+                
+                // Draw vehicles
+                vehicles.forEach(drawVehicle);
+                
+                // Draw player
+                drawPlayer();
+                
+                // Check collisions
+                checkCollisions();
+                
+                // Check level progress
+                checkLevelProgress();
+                
+                // Update UI
+                updateUI();
+                
+                // Continue game loop only if still playing
+                if (gameState === 'playing') {
+                    animationId = requestAnimationFrame(gameLoop);
+                }
+            }
+        }
+        
+        // Initialize the game
+        updateUI();
+    </script>
+</body>
+</html>
