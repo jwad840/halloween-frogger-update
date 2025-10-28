@@ -3,579 +3,754 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halloween Frogger - Spooky Adventure</title>
+    <title>Halloween Movie Trivia Game - Block Edition</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #1a0d2e 0%, #2d1b69 50%, #0f051a 100%);
-            font-family: 'Arial', sans-serif;
-            overflow: hidden;
-            position: relative;
+            box-sizing: border-box;
         }
 
-        /* Spooky background elements */
-        .background-elements {
-            position: absolute;
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a0a0a 0%, #2d1810 50%, #1a0a0a 100%);
+            color: #ff6b35;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 165, 0, 0.1) 0%, transparent 50%);
             pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
             z-index: 1;
         }
 
-        .floating-bat {
-            position: absolute;
-            font-size: 20px;
-            animation: float 8s ease-in-out infinite;
-            opacity: 0.3;
-        }
-
-        .spider {
-            position: absolute;
-            font-size: 16px;
-            animation: swing 3s ease-in-out infinite;
-            opacity: 0.4;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) translateX(0px); }
-            25% { transform: translateY(-20px) translateX(10px); }
-            50% { transform: translateY(-10px) translateX(-5px); }
-            75% { transform: translateY(-15px) translateX(8px); }
-        }
-
-        @keyframes swing {
-            0%, 100% { transform: rotate(-5deg); }
-            50% { transform: rotate(5deg); }
-        }
-
-        canvas {
-            display: block;
-            margin: 0 auto;
-            background: linear-gradient(to bottom, #0f051a 0%, #1a0d2e 20%, #2d1b69 80%, #0f051a 100%);
-            border: 3px solid #ff6b35;
-            box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
-            position: relative;
-            z-index: 2;
-        }
-
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            position: relative;
-            z-index: 2;
-        }
-
-        .start-screen, .game-over-screen {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .header {
             text-align: center;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 40px;
-            border-radius: 20px;
-            border: 3px solid #ff6b35;
-            box-shadow: 0 0 30px rgba(255, 107, 53, 0.7);
-            z-index: 10;
-        }
-
-        .start-screen h1, .game-over-screen h1 {
-            color: #ff6b35;
-            font-size: 3em;
-            margin: 0 0 20px 0;
-            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from { text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8), 0 0 10px #ff6b35; }
-            to { text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8), 0 0 20px #ff6b35, 0 0 30px #ff6b35; }
-        }
-
-        .start-button, .restart-button {
-            background: linear-gradient(45deg, #ff6b35, #f7931e);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.5em;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
-        }
-
-        .start-button:hover, .restart-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
-        }
-
-        .game-info {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 40px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px 30px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
             border-radius: 15px;
             border: 2px solid #ff6b35;
-            box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
-            z-index: 5;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
         }
 
-        .game-info div {
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            color: #ffa500;
+        }
+
+        .header p {
+            font-size: 1.2em;
             color: #ff6b35;
-            font-size: 20px;
-            font-weight: bold;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .game-section {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #ff6b35;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.2);
+        }
+
+        .email-form {
+            text-align: center;
+        }
+
+        .email-form h2 {
+            color: #ff6b35;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffa500;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            border: 2px solid #ff6b35;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #ffa500;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ffa500;
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.3);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff6b35 0%, #ffa500 100%);
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+            background: linear-gradient(135deg, #ffa500 0%, #ff6b35 100%);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ff6b35;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b35 0%, #ffa500 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .question {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .question h3 {
+            color: #ffa500;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .question-number {
+            color: #ff6b35;
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .answer-btn {
+            background: rgba(0, 0, 0, 0.7);
+            color: #ff6b35;
+            border: 2px solid #ff6b35;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-height: 60px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
         }
 
-        .game-info .icon {
-            font-size: 24px;
+        .answer-btn:hover {
+            background: rgba(255, 107, 53, 0.2);
+            border-color: #ffa500;
+            color: #ffa500;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
         }
 
-        .instructions {
-            color: #cccccc;
-            margin-top: 20px;
-            font-size: 1.1em;
+        .answer-btn.selected {
+            background: linear-gradient(135deg, #ff6b35 0%, #ffa500 100%);
+            color: #000;
+            border-color: #ffa500;
         }
 
-        .final-score {
-            color: #ff6b35;
+        .results {
+            text-align: center;
+        }
+
+        .results h2 {
+            color: #ffa500;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .score {
             font-size: 1.5em;
+            color: #ff6b35;
             margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .admin-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #ff6b35;
+        }
+
+        .admin-toggle {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .admin-panel {
+            display: none;
+        }
+
+        .participant-list {
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .participant-item {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid #ff6b35;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .participant-item h4 {
+            color: #ffa500;
+            margin-bottom: 8px;
+        }
+
+        .participant-item p {
+            color: #ff6b35;
+            margin: 4px 0;
+            font-size: 0.9em;
+        }
+
+        /* Enhanced mobile styles */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .question h3 {
+                font-size: 1.3em;
+            }
+            
+            .answer-btn {
+                font-size: 0.9em;
+                padding: 12px 15px;
+                margin: 8px 0;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+
+            .answers {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+        
+        /* Error message styles */
+        .error-message {
+            background: #dc3545;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Storage warning styles */
+        .storage-warning {
+            background: #ffc107;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="background-elements">
-        <div class="floating-bat" style="top: 10%; left: 15%;">🦇</div>
-        <div class="floating-bat" style="top: 20%; right: 20%; animation-delay: -2s;">🦇</div>
-        <div class="floating-bat" style="top: 70%; left: 10%; animation-delay: -4s;">🦇</div>
-        <div class="floating-bat" style="top: 80%; right: 15%; animation-delay: -6s;">🦇</div>
-        <div class="spider" style="top: 5%; left: 50%;">🕷️</div>
-        <div class="spider" style="top: 15%; right: 30%; animation-delay: -1s;">🕷️</div>
-        <div class="spider" style="top: 85%; left: 70%; animation-delay: -2s;">🕷️</div>
-    </div>
-
-    <div class="game-container">
-        <div class="game-info" id="gameInfo" style="display: none;">
-            <div><span class="icon">🎯</span>Score: <span id="score">0</span></div>
-            <div><span class="icon">🎃</span>Level: <span id="level">1</span></div>
-            <div><span class="icon">❤️</span>Lives: <span id="lives">3</span></div>
+    <div class="container">
+        <div class="header">
+            <h1>🎃 Halloween Movie Trivia 🎃</h1>
+            <p>Test your knowledge of spooky cinema!</p>
         </div>
 
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
-
-        <div id="startScreen" class="start-screen">
-            <h1>🎃 Halloween Frogger 🎃</h1>
-            <p class="instructions">
-                Help the jack-o'-lantern cross the spooky roads!<br>
-                Use arrow keys to move<br>
-                Avoid the ghosts, witches, and zombies!
-            </p>
-            <button class="start-button" onclick="startGame()">🎃 Start Spooky Adventure 🎃</button>
+        <!-- Email Collection Form -->
+        <div id="email-section" class="game-section">
+            <div class="email-form">
+                <h2>Enter Your Block Email to Begin</h2>
+                <div class="form-group">
+                    <label for="email">Email Address:</label>
+                    <input type="email" id="email" placeholder="your.email@block.xyz" required>
+                </div>
+                <button class="btn" onclick="startGame()">Start Trivia Game</button>
+            </div>
         </div>
 
-        <div id="gameOverScreen" class="game-over-screen" style="display: none;">
-            <h1>👻 Game Over 👻</h1>
-            <div class="final-score">Final Score: <span id="finalScore">0</span></div>
-            <button class="restart-button" onclick="restartGame()">🎃 Try Again 🎃</button>
+        <!-- Game Section -->
+        <div id="game-section" class="game-section hidden">
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            
+            <div class="question">
+                <div id="question-number" class="question-number"></div>
+                <h3 id="question"></h3>
+                <div id="answers" class="answers"></div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="game-section hidden">
+            <div class="results">
+                <h2>🎃 Game Complete! 🎃</h2>
+                <div id="final-score" class="score"></div>
+                <div id="completion-time" class="score"></div>
+                <button class="btn" onclick="restartGame()">Play Again</button>
+            </div>
+        </div>
+
+        <!-- Admin Section -->
+        <div class="admin-section">
+            <div class="admin-toggle">
+                <button class="btn" onclick="toggleAdmin()">Admin Panel</button>
+            </div>
+            <div id="admin-panel" class="admin-panel game-section">
+                <h2>Admin Panel</h2>
+                <div style="margin-bottom: 20px;">
+                    <button class="btn" onclick="exportCSV()">Export Data as CSV</button>
+                    <button class="btn" onclick="clearAllData()" style="background: #dc3545;">Clear All Data</button>
+                </div>
+                <div id="participant-count" style="margin-bottom: 15px; color: #ffa500;"></div>
+                <div id="participant-list" class="participant-list"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Game state
-        let gameState = 'start'; // 'start', 'playing', 'gameOver'
-        let score = 0;
-        let level = 1;
-        let lives = 3;
-        let gameSpeed = 1;
-        let animationId = null;
-        
-        // Player object
-        const player = {
-            x: canvas.width / 2 - 20,
-            y: canvas.height - 60,
-            width: 40,
-            height: 40,
-            speed: 40
+        // Enhanced configuration
+        const CONFIG = {
+            ADMIN_PASSWORD: "HalloweenBlock2024!",
+            STORAGE_LIMIT: 4000000, // 4MB
+            BLOCK_DOMAINS: ['block.xyz', 'squareup.com', 'cash.app', 'tidal.com']
         };
-        
-        // Vehicle arrays
-        let vehicles = [];
-        const vehicleTypes = ['👻', '🧙‍♀️', '🧟', '🧟‍♂️', '🧟‍♀️'];
-        
-        // Road configuration
-        const roads = [
-            { y: 500, direction: 1, speed: 1 },
-            { y: 440, direction: -1, speed: 1.5 },
-            { y: 380, direction: 1, speed: 1.2 },
-            { y: 320, direction: -1, speed: 1.8 },
-            { y: 260, direction: 1, speed: 1.4 },
-            { y: 200, direction: -1, speed: 2 },
-            { y: 140, direction: 1, speed: 1.6 },
-            { y: 80, direction: -1, speed: 2.2 }
+
+        // Game Data
+        const questions = [
+            {
+                question: "In which movie does Jack Nicholson say 'Here's Johnny!'?",
+                answers: ["The Shining", "Psycho", "Halloween", "Nightmare on Elm Street"],
+                correct: 0
+            },
+            {
+                question: "What is the name of the hotel in 'The Shining'?",
+                answers: ["Bates Motel", "The Stanley Hotel", "The Overlook Hotel", "The Grand Hotel"],
+                correct: 2
+            },
+            {
+                question: "Which horror movie features a possessed doll named Chucky?",
+                answers: ["Annabelle", "Child's Play", "Dead Silence", "The Conjuring"],
+                correct: 1
+            },
+            {
+                question: "In 'Halloween', what is the name of the masked killer?",
+                answers: ["Jason Voorhees", "Freddy Krueger", "Michael Myers", "Ghostface"],
+                correct: 2
+            },
+            {
+                question: "What weapon does Jason Voorhees typically use?",
+                answers: ["Chainsaw", "Machete", "Knife", "Axe"],
+                correct: 1
+            },
+            {
+                question: "In which movie do we hear 'I see dead people'?",
+                answers: ["The Ring", "The Sixth Sense", "Poltergeist", "The Others"],
+                correct: 1
+            },
+            {
+                question: "What is the name of the possessed girl in 'The Exorcist'?",
+                answers: ["Carol Anne", "Regan", "Samara", "Carrie"],
+                correct: 1
+            },
+            {
+                question: "Which movie features the Torrance family?",
+                answers: ["The Shining", "Poltergeist", "The Amityville Horror", "Insidious"],
+                correct: 0
+            },
+            {
+                question: "In 'A Nightmare on Elm Street', on which street do the murders occur?",
+                answers: ["Oak Street", "Maple Street", "Elm Street", "Pine Street"],
+                correct: 2
+            },
+            {
+                question: "What is the name of the summer camp in 'Friday the 13th'?",
+                answers: ["Camp Arawak", "Camp Crystal Lake", "Camp Nightwing", "Camp Redwood"],
+                correct: 1
+            }
         ];
-        
-        // Input handling
-        const keys = {};
-        
-        document.addEventListener('keydown', (e) => {
-            keys[e.key] = true;
-        });
-        
-        document.addEventListener('keyup', (e) => {
-            keys[e.key] = false;
-        });
-        
-        // Game functions
+
+        // Game State
+        let currentQuestion = 0;
+        let score = 0;
+        let playerEmail = '';
+        let playerAnswers = [];
+        let gameStartTime = null;
+
+        // Local Storage Keys
+        const PARTICIPANTS_KEY = 'halloween_trivia_participants';
+
+        // Enhanced email validation
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) return false;
+            
+            // Block-specific domain validation
+            const domain = email.split('@')[1]?.toLowerCase();
+            return CONFIG.BLOCK_DOMAINS.includes(domain);
+        }
+
+        // Enhanced error handling
+        function showError(message) {
+            // Remove existing error messages
+            document.querySelectorAll('.error-message').forEach(el => el.remove());
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            
+            const emailSection = document.getElementById('email-section');
+            emailSection.insertBefore(errorDiv, emailSection.firstChild);
+            
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+
+        function showWarning(message) {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'storage-warning';
+            warningDiv.textContent = message;
+            
+            const adminPanel = document.getElementById('admin-panel');
+            adminPanel.insertBefore(warningDiv, adminPanel.firstChild);
+            
+            setTimeout(() => warningDiv.remove(), 10000);
+        }
+
+        // Enhanced game start function
         function startGame() {
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('gameInfo').style.display = 'flex';
-            gameState = 'playing';
-            resetGame();
-            gameLoop();
+            try {
+                const emailInput = document.getElementById('email');
+                const email = emailInput.value.trim();
+                
+                if (!email) {
+                    showError('Please enter your email address.');
+                    return;
+                }
+                
+                if (!isValidEmail(email)) {
+                    showError('Please enter a valid Block email address (@block.xyz, @squareup.com, @cash.app, or @tidal.com).');
+                    return;
+                }
+                
+                playerEmail = email;
+                currentQuestion = 0;
+                score = 0;
+                playerAnswers = [];
+                gameStartTime = new Date();
+                
+                document.getElementById('email-section').classList.add('hidden');
+                document.getElementById('game-section').classList.remove('hidden');
+                
+                showQuestion();
+                
+            } catch (error) {
+                console.error('Game start error:', error);
+                showError('Unable to start game. Please refresh and try again.');
+            }
         }
-        
+
+        function showQuestion() {
+            if (currentQuestion >= questions.length) {
+                endGame();
+                return;
+            }
+            
+            const question = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+            
+            document.getElementById('question-number').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+            document.getElementById('question').textContent = question.question;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            
+            const answersContainer = document.getElementById('answers');
+            answersContainer.innerHTML = '';
+            
+            question.answers.forEach((answer, index) => {
+                const button = document.createElement('button');
+                button.className = 'answer-btn';
+                button.textContent = answer;
+                button.onclick = () => selectAnswer(index);
+                answersContainer.appendChild(button);
+            });
+        }
+
+        function selectAnswer(answerIndex) {
+            playerAnswers[currentQuestion] = answerIndex;
+            
+            // Visual feedback
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach((btn, index) => {
+                btn.classList.remove('selected');
+                if (index === answerIndex) {
+                    btn.classList.add('selected');
+                }
+            });
+            
+            // Check if answer is correct
+            if (answerIndex === questions[currentQuestion].correct) {
+                score++;
+            }
+            
+            // Move to next question after a short delay
+            setTimeout(() => {
+                currentQuestion++;
+                showQuestion();
+            }, 1000);
+        }
+
+        function endGame() {
+            const gameEndTime = new Date();
+            const timeTaken = Math.round((gameEndTime - gameStartTime) / 1000);
+            
+            document.getElementById('game-section').classList.add('hidden');
+            document.getElementById('results-section').classList.remove('hidden');
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('final-score').textContent = `Your Score: ${score}/${questions.length} (${percentage}%)`;
+            document.getElementById('completion-time').textContent = `Completed in: ${timeTaken} seconds`;
+            
+            saveParticipantData(timeTaken);
+            
+            // Complete progress bar
+            document.getElementById('progress-fill').style.width = '100%';
+        }
+
+        // Enhanced data saving with storage monitoring
+        function saveParticipantData(timeTaken) {
+            try {
+                const participants = JSON.parse(localStorage.getItem(PARTICIPANTS_KEY) || '[]');
+                
+                // Check storage size
+                const currentSize = JSON.stringify(participants).length;
+                if (currentSize > CONFIG.STORAGE_LIMIT) {
+                    console.warn("Storage nearly full. Consider exporting data.");
+                }
+                
+                const participant = {
+                    email: playerEmail,
+                    score: score,
+                    totalQuestions: questions.length,
+                    percentage: Math.round((score / questions.length) * 100),
+                    answers: playerAnswers.map((answer, index) => ({
+                        question: questions[index].question,
+                        selectedAnswer: questions[index].answers[answer],
+                        correctAnswer: questions[index].answers[questions[index].correct],
+                        isCorrect: answer === questions[index].correct
+                    })),
+                    timeTaken: timeTaken,
+                    completedAt: new Date().toISOString()
+                };
+                
+                participants.push(participant);
+                localStorage.setItem(PARTICIPANTS_KEY, JSON.stringify(participants));
+                
+            } catch (error) {
+                console.error('Storage error:', error);
+                alert('Unable to save data. Storage may be full. Please contact admin.');
+            }
+        }
+
         function restartGame() {
-            document.getElementById('gameOverScreen').style.display = 'none';
-            document.getElementById('gameInfo').style.display = 'flex';
-            gameState = 'playing';
-            resetGame();
-            // Restart the game loop
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-            }
-            gameLoop();
+            document.getElementById('results-section').classList.add('hidden');
+            document.getElementById('email-section').classList.remove('hidden');
+            document.getElementById('email').value = '';
         }
-        
-        function resetGame() {
-            score = 0;
-            level = 1;
-            lives = 3;
-            gameSpeed = 1;
-            player.x = canvas.width / 2 - 20;
-            player.y = canvas.height - 60;
-            vehicles = [];
-            updateUI();
-        }
-        
-        function updateUI() {
-            document.getElementById('score').textContent = score;
-            document.getElementById('level').textContent = level;
-            document.getElementById('lives').textContent = lives;
-        }
-        
-        function drawPlayer() {
-            const centerX = player.x + player.width / 2;
-            const centerY = player.y + player.height / 2;
-            
-            // Draw jack-o'-lantern body
-            ctx.fillStyle = '#ff6b35';
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, 18, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Draw pumpkin ridges
-            ctx.strokeStyle = '#cc4400';
-            ctx.lineWidth = 2;
-            for (let i = 0; i < 6; i++) {
-                const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
-                const x1 = centerX + Math.cos(angle) * 12;
-                const y1 = centerY + Math.sin(angle) * 12;
-                const x2 = centerX + Math.cos(angle) * 18;
-                const y2 = centerY + Math.sin(angle) * 18;
-                ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-                ctx.stroke();
+
+        // Enhanced admin panel with authentication
+        function toggleAdmin() {
+            const adminPassword = prompt("Enter admin password:");
+            if (adminPassword !== CONFIG.ADMIN_PASSWORD) {
+                alert("Incorrect password. Contact IT for admin access.");
+                return;
             }
             
-            // Draw stem
-            ctx.fillStyle = '#228B22';
-            ctx.fillRect(centerX - 3, centerY - 22, 6, 8);
-            
-            // Draw carved face
-            ctx.fillStyle = '#000000';
-            
-            // Eyes (triangular)
-            ctx.beginPath();
-            ctx.moveTo(centerX - 8, centerY - 5);
-            ctx.lineTo(centerX - 12, centerY + 2);
-            ctx.lineTo(centerX - 4, centerY + 2);
-            ctx.closePath();
-            ctx.fill();
-            
-            ctx.beginPath();
-            ctx.moveTo(centerX + 8, centerY - 5);
-            ctx.lineTo(centerX + 4, centerY + 2);
-            ctx.lineTo(centerX + 12, centerY + 2);
-            ctx.closePath();
-            ctx.fill();
-            
-            // Mouth (zigzag)
-            ctx.beginPath();
-            ctx.moveTo(centerX - 10, centerY + 8);
-            ctx.lineTo(centerX - 6, centerY + 12);
-            ctx.lineTo(centerX - 2, centerY + 8);
-            ctx.lineTo(centerX + 2, centerY + 12);
-            ctx.lineTo(centerX + 6, centerY + 8);
-            ctx.lineTo(centerX + 10, centerY + 12);
-            ctx.lineWidth = 3;
-            ctx.stroke();
-            ctx.fill();
-        }
-        
-        function createVehicle(roadIndex) {
-            const road = roads[roadIndex];
-            const vehicleType = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
-            
-            // Calculate speed based on level with progressive difficulty
-            // FIXED: Increased beginning level speeds by 15-20%
-            let baseSpeed = road.speed;
-            if (level <= 3) {
-                // Tutorial levels - increased from 0.4 to 0.5 (25% faster)
-                baseSpeed *= 0.5;
-            } else if (level <= 6) {
-                // Easy to moderate progression - slightly increased
-                baseSpeed *= (0.5 + (level - 3) * 0.15);
+            const panel = document.getElementById('admin-panel');
+            if (panel.style.display === 'none' || panel.style.display === '') {
+                panel.style.display = 'block';
+                loadParticipantData();
             } else {
-                // Traditional challenge
-                baseSpeed *= (0.95 + (level - 6) * 0.1);
+                panel.style.display = 'none';
             }
-            
-            const vehicle = {
-                x: road.direction > 0 ? -60 : canvas.width + 60,
-                y: road.y,
-                width: 50,
-                height: 40,
-                speed: baseSpeed * road.direction * gameSpeed,
-                type: vehicleType,
-                roadIndex: roadIndex
-            };
-            
-            vehicles.push(vehicle);
         }
-        
-        function updateVehicles() {
-            // Move vehicles
-            for (let i = vehicles.length - 1; i >= 0; i--) {
-                vehicles[i].x += vehicles[i].speed;
+
+        function loadParticipantData() {
+            const participants = JSON.parse(localStorage.getItem(PARTICIPANTS_KEY) || '[]');
+            const countElement = document.getElementById('participant-count');
+            const listElement = document.getElementById('participant-list');
+            
+            countElement.textContent = `Total Participants: ${participants.length}`;
+            listElement.innerHTML = '';
+            
+            if (participants.length === 0) {
+                listElement.innerHTML = '<p style="color: #ff6b35; text-align: center;">No participants yet.</p>';
+                return;
+            }
+
+            // Check storage size and show warning if needed
+            const currentSize = JSON.stringify(participants).length;
+            if (currentSize > CONFIG.STORAGE_LIMIT * 0.8) {
+                showWarning(`Storage usage: ${Math.round(currentSize / 1024)}KB. Consider exporting data soon.`);
+            }
+            
+            participants.reverse().forEach(participant => {
+                const item = document.createElement('div');
+                item.className = 'participant-item';
                 
-                // Remove vehicles that are off screen
-                if (vehicles[i].x < -100 || vehicles[i].x > canvas.width + 100) {
-                    vehicles.splice(i, 1);
-                }
-            }
-            
-            // Spawn new vehicles based on level
-            let spawnChance;
-            if (level <= 3) {
-                spawnChance = 0.004; // Slightly increased spawn rate for more engagement
-            } else if (level <= 6) {
-                spawnChance = 0.004 + (level - 3) * 0.002; // Gradual increase
-            } else {
-                spawnChance = 0.01 + (level - 6) * 0.001; // Higher spawn rate
-            }
-            
-            roads.forEach((road, index) => {
-                if (Math.random() < spawnChance) {
-                    // Check if there's enough space for a new vehicle
-                    const lastVehicle = vehicles.filter(v => v.roadIndex === index).pop();
-                    if (!lastVehicle || Math.abs(lastVehicle.x - (road.direction > 0 ? -60 : canvas.width + 60)) > 150) {
-                        createVehicle(index);
-                    }
-                }
+                const completedDate = new Date(participant.completedAt).toLocaleString();
+                
+                item.innerHTML = `
+                    <h4>${participant.email}</h4>
+                    <p><strong>Score:</strong> ${participant.score}/${participant.totalQuestions} (${participant.percentage}%)</p>
+                    <p><strong>Time:</strong> ${participant.timeTaken} seconds</p>
+                    <p><strong>Completed:</strong> ${completedDate}</p>
+                `;
+                
+                listElement.appendChild(item);
             });
         }
-        
-        function drawVehicle(vehicle) {
-            ctx.font = '40px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            
-            // Add glow effect for spooky atmosphere
-            ctx.shadowColor = vehicle.type === '👻' ? '#ffffff' : '#ff6b35';
-            ctx.shadowBlur = 10;
-            
-            ctx.fillText(
-                vehicle.type, 
-                vehicle.x + vehicle.width / 2, 
-                vehicle.y + vehicle.height / 2
-            );
-            
-            ctx.shadowBlur = 0;
-        }
-        
-        function drawRoads() {
-            // Draw road stripes
-            ctx.fillStyle = '#333333';
-            roads.forEach(road => {
-                ctx.fillRect(0, road.y - 20, canvas.width, 80);
+
+        // Enhanced CSV export with error handling
+        function exportCSV() {
+            try {
+                const participants = JSON.parse(localStorage.getItem(PARTICIPANTS_KEY) || '[]');
                 
-                // Draw lane dividers
-                ctx.fillStyle = '#666666';
-                for (let x = 0; x < canvas.width; x += 60) {
-                    ctx.fillRect(x, road.y + 15, 30, 3);
+                if (participants.length === 0) {
+                    alert('No participant data to export.');
+                    return;
                 }
-                ctx.fillStyle = '#333333';
-            });
-            
-            // Draw safe zones (grass)
-            ctx.fillStyle = '#1a4d1a';
-            ctx.fillRect(0, 0, canvas.width, 60);
-            ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
-            
-            // Add some spooky ground details
-            ctx.fillStyle = '#0d2d0d';
-            for (let i = 0; i < 10; i++) {
-                const x = (i * 80) % canvas.width;
-                ctx.fillRect(x, 10, 20, 5);
-                ctx.fillRect(x + 30, canvas.height - 70, 25, 5);
-            }
-        }
-        
-        function handleInput() {
-            if (keys['ArrowUp'] && player.y > 0) {
-                player.y -= player.speed;
-                score += 10; // Points for moving forward
-                keys['ArrowUp'] = false; // Prevent continuous movement
-            }
-            if (keys['ArrowDown'] && player.y < canvas.height - player.height) {
-                player.y += player.speed;
-                keys['ArrowDown'] = false;
-            }
-            if (keys['ArrowLeft'] && player.x > 0) {
-                player.x -= player.speed;
-                keys['ArrowLeft'] = false;
-            }
-            if (keys['ArrowRight'] && player.x < canvas.width - player.width) {
-                player.x += player.speed;
-                keys['ArrowRight'] = false;
-            }
-        }
-        
-        function checkCollisions() {
-            vehicles.forEach(vehicle => {
-                if (player.x < vehicle.x + vehicle.width - 10 &&
-                    player.x + player.width > vehicle.x + 10 &&
-                    player.y < vehicle.y + vehicle.height - 10 &&
-                    player.y + player.height > vehicle.y + 10) {
+                
+                let csv = 'Email,Score,Total Questions,Percentage,Time Taken (seconds),Completed At';
+                
+                questions.forEach((q, index) => {
+                    csv += `,Question ${index + 1} Answer,Question ${index + 1} Correct`;
+                });
+                csv += '\n';
+                
+                participants.forEach(participant => {
+                    let row = `"${participant.email}",${participant.score},${participant.totalQuestions},${participant.percentage},${participant.timeTaken},"${participant.completedAt}"`;
                     
-                    // Collision detected
-                    lives--;
-                    player.x = canvas.width / 2 - 20;
-                    player.y = canvas.height - 60;
+                    participant.answers.forEach(answer => {
+                        row += `,"${answer.selectedAnswer}",${answer.isCorrect}`;
+                    });
                     
-                    if (lives <= 0) {
-                        gameOver();
-                    }
+                    csv += row + '\n';
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `halloween_trivia_results_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                console.log(`Exported data for ${participants.length} participants`);
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Unable to export data. Please try again or contact support.');
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all participant data? This cannot be undone.')) {
+                localStorage.removeItem(PARTICIPANTS_KEY);
+                loadParticipantData();
+                alert('All participant data has been cleared.');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Allow Enter key to start game
+            document.getElementById('email').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    startGame();
                 }
             });
-        }
-        
-        function checkLevelProgress() {
-            if (player.y <= 60) {
-                // Reached the top - level complete!
-                level++;
-                score += level * 100; // Level completion bonus
-                player.x = canvas.width / 2 - 20;
-                player.y = canvas.height - 60;
-                
-                // Increase game speed slightly
-                gameSpeed += 0.05;
-            }
-        }
-        
-        function gameOver() {
-            gameState = 'gameOver';
-            document.getElementById('gameInfo').style.display = 'none';
-            document.getElementById('finalScore').textContent = score;
-            document.getElementById('gameOverScreen').style.display = 'block';
-            
-            // FIXED: Cancel the animation frame to prevent the game loop from continuing
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-                animationId = null;
-            }
-        }
-        
-        function drawBackground() {
-            // Draw spooky sky gradient
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#0f051a');
-            gradient.addColorStop(0.3, '#1a0d2e');
-            gradient.addColorStop(0.7, '#2d1b69');
-            gradient.addColorStop(1, '#0f051a');
-            
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Add some stars
-            ctx.fillStyle = '#ffffff';
-            for (let i = 0; i < 20; i++) {
-                const x = (i * 37) % canvas.width;
-                const y = (i * 23) % 100;
-                ctx.beginPath();
-                ctx.arc(x, y, 1, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-        
-        function gameLoop() {
-            // FIXED: Store animation ID and only continue if game is playing
-            if (gameState === 'playing') {
-                // Clear canvas
-                drawBackground();
-                
-                // Draw game elements
-                drawRoads();
-                
-                // Handle input
-                handleInput();
-                
-                // Update game objects
-                updateVehicles();
-                
-                // Draw vehicles
-                vehicles.forEach(drawVehicle);
-                
-                // Draw player
-                drawPlayer();
-                
-                // Check collisions
-                checkCollisions();
-                
-                // Check level progress
-                checkLevelProgress();
-                
-                // Update UI
-                updateUI();
-                
-                // Continue game loop only if still playing
-                if (gameState === 'playing') {
-                    animationId = requestAnimationFrame(gameLoop);
-                }
-            }
-        }
-        
-        // Initialize the game
-        updateUI();
+        });
     </script>
 </body>
 </html>
